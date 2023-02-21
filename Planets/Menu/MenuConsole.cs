@@ -60,28 +60,6 @@ namespace Planets.Menu
 
     class MenuConsole
     {
-        static List<MenuBlock> list = new List<MenuBlock>
-        {
-            new MenuBlock("Game",60,5,(Console.WindowWidth-60)/2,0),
-            new MenuBlock("Log in",60,5,(Console.WindowWidth-60)/2,2,new Color(200,25,25),new Color(25,200,25),new Color(25,25,200),new Placeholder(65,3,()=>
-            {
-                LoginConsole.Appear();
-                return true;
-            })),
-            new MenuBlock("Sign in ",60,5,(Console.WindowWidth-60)/2,2,new Color(200,25,25),new Color(25,200,25),new Color(25,25,200),new Placeholder(65,3,()=>
-            {
-                return true;
-            })),
-            new MenuBlock("Settings",60,5,(Console.WindowWidth-60)/2,2,new Color(200,25,25),new Color(25,200,25),new Color(25,25,200),new Placeholder(65,3,()=>
-            {
-                return true;
-            })),
-            new MenuBlock("Exit",60,5,(Console.WindowWidth-60)/2,2,new Color(200,25,25),new Color(25,200,25),new Color(25,25,200),new Placeholder(65,3,()=>
-            {
-                System.Environment.Exit(1);
-                return true;
-            }))
-        };
         static string? Menu = "";
         static bool active;
         static List<Placeholder> placeholders = new List<Placeholder>();
@@ -90,11 +68,11 @@ namespace Planets.Menu
 
 
 
-        public static void Appear()
+        public static void Appear(List<MenuBlock> list)
         {
-            if (Menu == "") Init();
+            if (Menu == "") Init(list);
             active = true;
-            FastConsole.Write(Menu);
+            FastConsole.Write(@$"{Menu}");
             FastConsole.Flush();
 
             Control();
@@ -137,7 +115,7 @@ namespace Planets.Menu
             }
         }
 
-        public static void Init()
+        public static void Init(List<MenuBlock> list)
         {
             StringBuilder sb = new StringBuilder();
             placeholders = new List<Placeholder>();

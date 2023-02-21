@@ -1,5 +1,5 @@
-﻿using NetCoreServer;
-using Server.Objects;
+﻿using Library;
+using NetCoreServer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,14 +17,37 @@ namespace Server
         protected override void OnReceived(byte[] buffer, long offset, long size)
         {
             Response res = JsonSerializer.Deserialize<Response>(Encoding.UTF8.GetString(buffer, (int)offset, (int)size));
-            LoginObj login = JsonSerializer.Deserialize<LoginObj>(res.responseObj);
-            if(login.Login.Equals("Bartolius")&& login.Password.Equals("1234")){
-                res.responseBool = true;
+
+            string response="";
+
+            if (res.typ == typeof(LoginObj).ToString() && res.responseBool == true)
+            {
+                LoginObj login = JsonSerializer.Deserialize<LoginObj>(res.responseObj);
+
+                LoginObj loginObj = login;
+
+                bool selected = Program.connection.login(loginObj);
+
+                Response resLog = new Response();
+                resLog.typ = typeof(LoginObj).ToString();
+                resLog.responseBool = selected;
+
+                response = JsonSerializer.Serialize(resLog, typeof(Response));
             }
-            res.responseObj = null;
+            if(res.typ == typeof(LoginObj).ToString() && res.responseBool == false)
+            {
+                LoginObj register = JsonSerializer.Deserialize<LoginObj>(res.responseObj);
 
-            string response = JsonSerializer.Serialize(res,typeof(Response));
+                LoginObj registerObj = register;
 
+                bool selected = Program.connection.register(registerObj);
+
+                Response resLog = new Response();
+                resLog.typ = typeof(LoginObj).ToString();
+                resLog.responseBool = selected;
+
+                response = JsonSerializer.Serialize(resLog, typeof(Response));
+            }
 
             base.SendAsync(response);
         }

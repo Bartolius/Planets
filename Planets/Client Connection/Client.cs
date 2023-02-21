@@ -7,8 +7,8 @@ using NDesk.Options;
 using System.Net.Sockets;
 using System.Text.Json;
 using Planets.Menu;
-using Planets.Objects;
 using TcpClient = NetCoreServer.TcpClient;
+using Library;
 
 namespace Planets.Client_Connection
 {
@@ -36,6 +36,10 @@ namespace Planets.Client_Connection
             if (LoginConsole.active == true)
             {
                 LoginConsole.Check(response);
+            }
+            if(RegisterConsole.active == true)
+            {
+                RegisterConsole.Check(response);
             }
         }
 

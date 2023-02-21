@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Server.Objects
+namespace Library
 {
     [Serializable]
-    class LoginObj
+    public class LoginObj
     {
         public string Login { get; set; }
         public string Password { get; set; }
+        public string Email { get; set; }
     }
 }

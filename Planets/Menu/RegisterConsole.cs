@@ -4,12 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace Planets.Menu
 {
-    static class LoginConsole
+    static class RegisterConsole
     {
         public static bool active;
         private static int _curPos;
@@ -24,20 +23,29 @@ namespace Planets.Menu
             string username = CursorHandler(0);
             Console.WriteLine();
 
+            Console.Write("Email: ");
+            string email = CursorHandler(1);
+            Console.WriteLine();
+
             Console.Write("Password: ");
-            string password = CursorHandler(1);
+            string password = CursorHandler(2);
+            Console.WriteLine();
+
+            Console.Write("Repeat Password: ");
+            string rPassword = CursorHandler(3);
             Console.WriteLine();
 
 
 
             LoginObj login = new LoginObj();
-            login.Login=username;
-            login.Password=password;
+            login.Login = username;
+            login.Email = email;
+            login.Password = password;
 
             Response res = new Response();
             res.typ = typeof(LoginObj).ToString();
-            res.responseBool = true;
-            res.responseObj = JsonSerializer.Serialize(login,typeof(LoginObj));
+            res.responseBool = false;
+            res.responseObj = JsonSerializer.Serialize(login, typeof(LoginObj));
 
             string resString = JsonSerializer.Serialize(res);
 
@@ -53,6 +61,7 @@ namespace Planets.Menu
             else
             {
                 active = false;
+                Program.client.Disconnect();
                 System.Environment.Exit(1);
             }
         }
@@ -68,7 +77,7 @@ namespace Planets.Menu
 
             while (true)
             {
-                PrintText(stringB.ToString(),pos);
+                PrintText(stringB.ToString(), pos);
                 ConsoleKeyInfo key = Console.ReadKey(true);
 
                 if (char.IsLetter(key.KeyChar) || char.IsNumber(key.KeyChar))
@@ -82,9 +91,9 @@ namespace Planets.Menu
                 }
                 if (key.Key == ConsoleKey.Backspace)
                 {
-                    if(_curPos > 0)
+                    if (_curPos > 0)
                     {
-                        stringB.Remove(stringB.Length-1,1);
+                        stringB.Remove(stringB.Length - 1, 1);
                         _curPos--;
                     }
                 }
@@ -92,20 +101,30 @@ namespace Planets.Menu
         }
         private static void PrintText(string text, int type)
         {
-            if (type == 1)
+            switch (type)
             {
-                Console.SetCursorPosition(10, 1);
-                for(int i = 0; i < text.Length; i++)
-                {
-                    Console.Write("#");
-                }
-                Console.Write(" ");
-            }
-            else
-            {
-                Console.SetCursorPosition(7, 0);
-                Console.Write(text);
-                Console.Write(" ");
+                case 0:
+                case 1:
+                    Console.SetCursorPosition(7, type);
+                    Console.Write(text);
+                    Console.Write(" ");
+                    break;
+                case 2:
+                    Console.SetCursorPosition(10, 2);
+                    for (int i = 0; i < text.Length; i++)
+                    {
+                        Console.Write("#");
+                    }
+                    Console.Write(" ");
+                    break;
+                case 3:
+                    Console.SetCursorPosition(17, 3);
+                    for (int i = 0; i < text.Length; i++)
+                    {
+                        Console.Write("#");
+                    }
+                    Console.Write(" ");
+                    break;
             }
         }
     }

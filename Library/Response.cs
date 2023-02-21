@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Planets.Objects
+namespace Library
 {
     [Serializable]
-    internal class Response
+    public class Response
     {
         public String typ { get; set; }
         public bool responseBool { get; set; }

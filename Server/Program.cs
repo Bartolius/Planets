@@ -3,11 +3,15 @@ using System.Net;
 using System.Net.Sockets;
 using NetCoreServer;
 using NDesk.Options;
+using Library;
+using System.Data.SqlClient;
 
 namespace Server
 {
     internal class Program
     {
+        public static Database connection;
+
         static void Main(string[] args)
         {
             bool help = false;
@@ -51,7 +55,13 @@ namespace Server
 
             Console.WriteLine("Press Enter to stop the server or '!' to restart the server");
 
-            for(; ; )
+            connection = Database.GetDatabase();
+
+
+
+
+
+            for (; ; )
             {
                 string line = Console.ReadLine();
                 if (string.IsNullOrEmpty(line))
