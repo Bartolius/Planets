@@ -9,6 +9,10 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using System;
+using Microsoft.Win32.SafeHandles;
+using System.Runtime.InteropServices;
+
 namespace Planets
 {
     
@@ -45,6 +49,8 @@ namespace Planets
             var con = new StreamWriter(stdout, Encoding.ASCII);
             con.AutoFlush = true;
             Console.SetOut(con);
+
+            ConsoleMenu.SetAsciCMDConsole();
 
             WindowUtility.SetConsoleWindowPosition(WindowUtility.AnchorWindow.Fill);
             ConsoleMenu.DisableCloseButton();

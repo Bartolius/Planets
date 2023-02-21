@@ -23,6 +23,31 @@ namespace Planets
         [DllImport("kernel32.dll", ExactSpelling = true)]
         private static extern IntPtr GetConsoleWindow();
 
+
+
+
+        const uint STD_OUTPUT_HANDLE = 0xFFFFFFF5;
+        const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
+
+        [DllImport("kernel32.dll")]
+        static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
+
+        [DllImport("kernel32.dll")]
+        static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern IntPtr GetStdHandle(uint nStdHandle);
+
+        public static void SetAsciCMDConsole()
+        {
+            var handle = GetStdHandle(STD_OUTPUT_HANDLE);
+            uint mode;
+            GetConsoleMode(handle, out mode);
+            SetConsoleMode(handle, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+
+        }
+
+
         /// <summary>
         /// Disable min and max buttons. Buttons are visible but not operational
         /// </summary>
