@@ -44,16 +44,17 @@ namespace Planets.Menu
             Program.client.SendAsync(Encoding.UTF8.GetBytes(resString));
         }
 
-        public static void Check(Response response)
+        public static void Check()
         {
-            if (!response.responseBool)
+            if (!Program.client.connected)
             {
                 Appear();
             }
             else
             {
                 active = false;
-                System.Environment.Exit(1);
+                MenuConsole.Init(MenuComponent.MENULOGIN);
+                MenuConsole.Appear(MenuComponent.MENULOGIN);
             }
         }
 

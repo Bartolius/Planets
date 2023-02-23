@@ -14,7 +14,8 @@ namespace Planets.Client_Connection
 {
     class Client : TcpClient
     {
-        public Response response;
+        private Response response;
+        public bool connected;
 
 
         public Client(string address, int port) : base(address, port) { }
@@ -31,15 +32,25 @@ namespace Planets.Client_Connection
             Console.WriteLine($"Client caught an error with code {error}");
         }
 
+        private bool check()
+        {
+            if (typeof(LoginObj).ToString().Equals(response.typ))
+            {
+                return response.responseBool;
+            }
+            else return connected;
+        }
         private void respond()
         {
+            connected = check();
+
             if (LoginConsole.active == true)
             {
-                LoginConsole.Check(response);
+                LoginConsole.Check();
             }
             if(RegisterConsole.active == true)
             {
-                RegisterConsole.Check(response);
+                RegisterConsole.Check();
             }
         }
 

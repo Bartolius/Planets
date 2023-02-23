@@ -19,58 +19,76 @@ namespace Planets
     internal class Program
     {
         public static Client client;
-        private static List<MenuBlock> list = new List<MenuBlock>
-        {
-            new MenuBlock("Game",60,5,(Console.WindowWidth-60)/2,0),
-            new MenuBlock("Log in",60,5,(Console.WindowWidth-60)/2,2,new Color(200,25,25),new Color(25,200,25),new Color(25,25,200),new Placeholder(65,3,()=>
-            {
-                LoginConsole.Appear();
-                return true;
-            })),
-            new MenuBlock("Sign in ",60,5,(Console.WindowWidth-60)/2,2,new Color(200,25,25),new Color(25,200,25),new Color(25,25,200),new Placeholder(65,3,()=>
-            {
-                RegisterConsole.Appear();
-                return true;
-            })),
-            new MenuBlock("Settings",60,5,(Console.WindowWidth-60)/2,2,new Color(200,25,25),new Color(25,200,25),new Color(25,25,200),new Placeholder(65,3,()=>
-            {
-                return true;
-            })),
-            new MenuBlock("Exit",60,5,(Console.WindowWidth-60)/2,2,new Color(200,25,25),new Color(25,200,25),new Color(25,25,200),new Placeholder(65,3,()=>
-            {
-                System.Environment.Exit(1);
-                return true;
-            }))
-        };
 
         private static void Init()
         {
-            var stdout = Console.OpenStandardOutput();
-            var con = new StreamWriter(stdout, Encoding.ASCII);
-            con.AutoFlush = true;
-            Console.SetOut(con);
-
             ConsoleMenu.SetAsciCMDConsole();
 
             WindowUtility.SetConsoleWindowPosition(WindowUtility.AnchorWindow.Fill);
-            ConsoleMenu.DisableCloseButton();
-            ConsoleMenu.DisableMinMaxButtons();
-            Console.SetBufferSize(width: Console.LargestWindowWidth - 3, height: Console.LargestWindowHeight);
+            //ConsoleMenu.DisableCloseButton();
+            ConsoleMenu.BlockResize();
+            //Console.SetBufferSize(width: Console.LargestWindowWidth - 3, height: Console.LargestWindowHeight);
             Console.CursorVisible = false;
 
-            MenuConsole.Init(list);
+            MenuConsole.Init(MenuComponent.MENUNOTLOGIN);
         }
+
+
         static void Main(string[] args)
         {
+
+
+
+            PerlinNoise noise = new PerlinNoise(1234567890);
+            Init();
+            
+            /*Thread.Sleep(2000);
+            StringBuilder stringBuilder= new StringBuilder();
+            for(int z = 0; z < 1500; z++)
+            {
+                for (int y = 0; y < 16*3; y++)
+                {
+                    for(int x=z; x < 16*8+z; x++)
+                    {
+                        double noisevalue = noise.FractalBrownianMotion(x,y,10);
+                    
+                        double color = (noisevalue + 1) / 2;
+                        if (color * 255 > 200)
+                        {
+                            stringBuilder.Append(Color.BackgroundColor(new Color(255, 255, 255)) + " ");
+                        }
+                        else if (color * 255 > 90)
+                        {
+                            stringBuilder.Append(Color.BackgroundColor(new Color(0, (byte)(color*255-90), 0)) + " ");
+                        }
+                        else
+                        {
+                            stringBuilder.Append(Color.BackgroundColor(new Color(0, 0, 150)) + " ");
+                        }
+                    }
+                    stringBuilder.Append("\n");
+                }
+                Console.SetCursorPosition(0,0);
+                FastConsole.Write(stringBuilder.ToString());
+                FastConsole.Flush();
+                stringBuilder.Clear();
+                Thread.Sleep(100000);
+            }*/
+            
+            
+
+
+
+
+
+            
             Init();
 
             Program.client = new Client("127.0.0.1", 1111);
 
             client.ConnectAsync();
             while(!client.IsConnected) { Thread.Sleep(1); }
-
-            //Console.WriteLine("\x1b[36mTEST\x1b[0m");
-            MenuConsole.Appear(list);
+            MenuConsole.Appear(MenuComponent.MENUNOTLOGIN);
 
             while (client.IsConnected)
             {

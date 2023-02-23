@@ -9,55 +9,6 @@ using System.Threading.Tasks;
 
 namespace Planets.Menu
 {
-    class MenuBlock
-    {
-        public string name { get; }
-        public int width { get; }
-        public int height { get; }
-        public int x { get; }
-        public int gap { get; }
-        public Placeholder placeholder { get; }
-        public Color text { get; }
-        public Color background { get; }
-        public Color border { get; }
-
-
-        public MenuBlock(string name, int width, int height, int x, int gap)
-        {
-            this.name = name;
-            this.width = width;
-            this.height = height;
-            this.x = x;
-            this.gap = gap;
-        }
-        public MenuBlock(string name, int width, int height, int x, int gap, Placeholder placeholder):this(name,width,height,x,gap) {
-            this.placeholder= placeholder;
-        }
-        public MenuBlock(string name, int width, int height, int x, int gap, Color text, Color background, Color border, Placeholder placeholder) : this(name, width, height, x, gap, placeholder)
-        {
-            this.text = text;
-            this.background = background;
-            this.border = border;
-        }
-    }
-    class Placeholder
-    {
-        public int x;
-        public int y;
-        public Func<bool> func; 
-        public Placeholder() { }
-        public Placeholder(int x, int y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-        public Placeholder(int x, int y, Func<bool> func):this(x,y)
-        {
-            this.func = func;
-        }
-    }
-
-
     class MenuConsole
     {
         static string? Menu = "";
@@ -66,13 +17,12 @@ namespace Planets.Menu
         static Placeholder prev;
         static int selected;
 
-
-
         public static void Appear(List<MenuBlock> list)
         {
             if (Menu == "") Init(list);
             active = true;
-            FastConsole.Write(@$"{Menu}");
+            Console.Clear();
+            FastConsole.Write($"{Menu}");
             FastConsole.Flush();
 
             Control();

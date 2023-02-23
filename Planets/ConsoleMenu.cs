@@ -51,10 +51,15 @@ namespace Planets
         /// <summary>
         /// Disable min and max buttons. Buttons are visible but not operational
         /// </summary>
-        public static void DisableMinMaxButtons()
+        public static void BlockResize()
         {
-            DeleteMenu(GetSystemMenu(GetConsoleWindow(), false), SC_MINIMIZE, MF_BYCOMMAND);
-            DeleteMenu(GetSystemMenu(GetConsoleWindow(), false), SC_MAXIMIZE, MF_BYCOMMAND);
+            IntPtr handle = GetConsoleWindow();
+            IntPtr sysMenu = GetSystemMenu(handle, false);
+            if (handle != IntPtr.Zero)
+            {
+                DeleteMenu(sysMenu, 0xF030, 0x00000000);
+                DeleteMenu(sysMenu, 0xF000, 0x00000000);
+            }
         }
 
         /// <summary>
