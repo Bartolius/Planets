@@ -36,53 +36,33 @@ namespace Planets
 
         static void Main(string[] args)
         {
-
-
-
-            PerlinNoise noise = new PerlinNoise(1234567890);
             Init();
-            
-            /*Thread.Sleep(2000);
-            StringBuilder stringBuilder= new StringBuilder();
-            for(int z = 0; z < 1500; z++)
+
+
+            PerlinNoise noise = new PerlinNoise(123456789);
+            StringBuilder stringBuilder = new StringBuilder();
+
+            for (int z = 0; z < 1500; z++)
             {
-                for (int y = 0; y < 16*3; y++)
+                for (int y = 0; y < 16 * 3; y++)
                 {
-                    for(int x=z; x < 16*8+z; x++)
+                    for (int x = 0; x < 16 * 6; x++)
                     {
-                        double noisevalue = noise.FractalBrownianMotion(x,y,10);
-                    
-                        double color = (noisevalue + 1) / 2;
-                        if (color * 255 > 200)
-                        {
-                            stringBuilder.Append(Color.BackgroundColor(new Color(255, 255, 255)) + " ");
-                        }
-                        else if (color * 255 > 90)
-                        {
-                            stringBuilder.Append(Color.BackgroundColor(new Color(0, (byte)(color*255-90), 0)) + " ");
-                        }
-                        else
-                        {
-                            stringBuilder.Append(Color.BackgroundColor(new Color(0, 0, 150)) + " ");
-                        }
+                        double noisevalue = noise.OctaveNoise(x, y, z,8);
+                        double color=(noisevalue+1)/2;
+
+                        stringBuilder.Append(Color.BackgroundColor(new Color((byte)(color*255), (byte)(color * 255), (byte)(color * 255))) + " ");
                     }
                     stringBuilder.Append("\n");
                 }
-                Console.SetCursorPosition(0,0);
+                Console.SetCursorPosition(0, 0);
                 FastConsole.Write(stringBuilder.ToString());
                 FastConsole.Flush();
                 stringBuilder.Clear();
-                Thread.Sleep(100000);
-            }*/
-            
-            
+            }
 
 
-
-
-
-            
-            Init();
+            /*Init();
 
             Program.client = new Client("127.0.0.1", 1111);
 
@@ -93,7 +73,7 @@ namespace Planets
             while (client.IsConnected)
             {
                 Thread.Sleep(10000);
-            }
+            }*/
         }
     }
 }

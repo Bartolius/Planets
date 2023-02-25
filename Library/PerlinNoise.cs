@@ -6,126 +6,43 @@ using System.Threading.Tasks;
 
 namespace Library
 {
-    class Vector2
+    class Vector3
     {
-        double x, y;
-        public Vector2 (double x, double y)
+        double x, y, z;
+        public Vector3 (double x, double y, double z)
         {
             this.x = x;
             this.y = y;
+            this.z = z;
         }
-        /// <summary>
-        /// Calculate dot value by width and height beetween position of point and corner
-        /// </summary>
-        /// <param name="v"></param>
-        /// <returns></returns>
-        public double dot(Vector2 v)
+        public double dot(Vector3 vector)
         {
-            return this.x*v.x + this.y*v.y;
+            return 
+                x * vector.x +
+                y * vector.y +
+                z * vector.z;
         }
     }
     public class PerlinNoise
     {
+        #region Permutation Table
+        /// <summary>
+        /// Permutations List
+        /// </summary>
         private List<int> _Permutations;
-        public ulong Seed { get; }
 
         /// <summary>
-        /// Init Noise
-        /// </summary>
-        /// <param name="seed">seed of noise</param>
-        public PerlinNoise(ulong seed)
-        {
-            Seed = seed;
-            _Permutations = MakePermutations();
-        }
-        /// <summary>
-        /// Make Noise value by changing amplitude and frequency of next octave.
-        /// </summary>
-        /// <param name="x"> x position </param>
-        /// <param name="y"> y position </param>
-        /// <param name="numOctaves"> numbers of repeats</param>
-        /// <returns>Sum of Noises</returns>
-        public double FractalBrownianMotion(int x, int y, int numOctaves)
-        {
-            double result = 0;
-            double amplitude = 1;
-            double frequency = 0.01;
-
-            for(int octave = 0; octave< numOctaves; octave++)
-            {
-                double n = amplitude * Noise((double)(x) * frequency, (double)(y) * frequency);
-                result += n;
-
-                amplitude *= 0.42;
-                frequency *= 2.0;
-            }
-
-            if (result > 1)
-            {
-                return 1;
-            }
-            return result;
-        }
-        /// <summary>
-        /// Gets Noise value in (x,y) position
-        /// </summary>
-        /// <param name="ix"> x position </param>
-        /// <param name="iy"> y position</param>
-        /// <returns> Noise value</returns>
-        public double Noise(double ix, double iy)
-        {
-            //cast value by scale
-            double x = ix;
-            double y = iy;
-
-            //positions to take permutation from list
-            int X = (int)Math.Floor(x) & 255;
-            int Y = (int)Math.Floor(y) & 255;
-
-            //offset position
-            double xf = x - Math.Floor(x);
-            double yf = y - Math.Floor(y);
-
-            //vectors of 4 corners
-            Vector2 TR = new Vector2(xf - 1, yf - 1);
-            Vector2 TL = new Vector2(xf, yf - 1);
-            Vector2 BR = new Vector2(xf - 1, yf);
-            Vector2 BL = new Vector2(xf, yf);
-
-            //values of vectors
-            int VTR = _Permutations[_Permutations[X + 1] + Y + 1];
-            int VTL = _Permutations[_Permutations[X] + Y + 1];
-            int VBR = _Permutations[_Permutations[X + 1] + Y];
-            int VBL = _Permutations[_Permutations[X] + Y];
-
-            //dot products of values
-            double DTR = TR.dot(GetConstantVector(VTR));
-            double DTL = TL.dot(GetConstantVector(VTL));
-            double DBR = BR.dot(GetConstantVector(VBR));
-            double DBL = BL.dot(GetConstantVector(VBL));
-
-            //make Fade of x and y offset positions
-            double u = Fade(xf);
-            double v = Fade(yf);
-
-            //Lerp values
-            return Lerp(u,
-                Lerp(v, DBL, DTL),
-                Lerp(v, DBR, DTR)
-                );
-        }
-        /// <summary>
-        /// Shuffle permutation table with seed
+        /// Change order of list using seed
         /// </summary>
         /// <param name="list"></param>
-        /// <returns> Shuffled permutation list </returns>
+        /// <returns></returns>
         private List<int> Shuffle(List<int> list)
         {
             ulong s = Seed;
-            for (int i=list.Count-1; i > 0; i--)
+            for (int i = list.Count - 1; i > 0; i--)
             {
                 ulong localSeed = ((s + 743407443601) % 311239832093);
-                int index = (int)(localSeed%(ulong)list.Count);
+                int index = (int)(localSeed % (ulong)list.Count);
 
                 int temp = list[i];
                 list[i] = list[index];
@@ -137,14 +54,13 @@ namespace Library
             return list;
         }
         /// <summary>
-        /// Generate permutation list
+        /// Initialize permutation list, fill it with walues, Shufle it, copying created list additional time and assign in to _permutation param
         /// </summary>
-        /// <returns> Permutation list </returns>
-        private List<int> MakePermutations()
+        private void MakePermutations()
         {
             List<int> permutations = new List<int>();
 
-            for(int i = 0; i < 256; i++)
+            for (int i = 0; i < 256; i++)
             {
                 permutations.Add(i);
             }
@@ -155,43 +71,190 @@ namespace Library
                 permutations.Add(permutations[i]);
             }
 
-            return permutations;
+            _Permutations = permutations;
+        }
+        #endregion Permutation Table
+
+        private readonly ulong Seed;
+        /// <summary>
+        /// Get Seed
+        /// </summary>
+        /// <returns>Seed</returns>
+        public ulong getSeed()
+        {
+            return Seed;
+        }
+
+        #nullable disable
+        public PerlinNoise(ulong seed)
+        {
+            Seed = seed;
+            MakePermutations();
+        }
+
+        /// <summary>
+        /// Calculate Octave Noise (Multiple Noise Value, all nest value is smaller than previous)
+        /// </summary>
+        /// <param name="x"> Position x </param>
+        /// <param name="y"> Position y </param>
+        /// <param name="z"> Position y </param>
+        /// <param name="numOctaves"> Number of Octaves </param>
+        /// <param name="persistance"> Factor of all next octaves (Smaller factor creates smoofer values, factor 1 create Noise Value)</param>
+        /// <param name="frequency"> Change frequency of positions </param>
+        /// <returns> Octave Noise </returns>
+        public double OctaveNoise(int x, int y, int z, int numOctaves, double persistance = 0.5, double frequency = 0.01)
+        {
+            double result = 0;
+            double amplitude = 1;
+            double maxValue = 0;
+
+            for (int octave = 0; octave< numOctaves; octave++)
+            {
+                double n = amplitude * Noise(x * frequency, y * frequency, z * frequency);
+                result += n;
+                maxValue += amplitude;
+
+                amplitude *= persistance;
+                frequency *= 2.0;
+            }
+            return result/maxValue;
         }
         /// <summary>
-        /// Get the vector of the corner by v value
+        /// Faster Math.Floor()
         /// </summary>
-        /// <param name="v">number of vector</param>
-        /// <returns> Vector </returns>
-        private Vector2 GetConstantVector(int v)
+        /// <param name="x"> Value to rounding </param>
+        /// <returns> Rounded value </returns>
+        private static int Fastfloor(double x)
         {
-            int h = v & 3;
-            switch(h)
+            return x > 0 ? (int)x : (int)x - 1;
+        }
+        /// <summary>
+        /// Calculates Noise Value in given position
+        /// </summary>
+        /// <param name="x"> Position x </param>
+        /// <param name="y"> Position y </param>
+        /// <param name="z"> Position z </param>
+        /// <returns> Noise Value of given positions </returns>
+        public double Noise(double x, double y, double z)
+        {
+            //Round value to future take value from _permutation list
+            int X = Fastfloor(x);
+            int Y = Fastfloor(y);
+            int Z = Fastfloor(z);
+
+            //Relative position, slice integer value from position
+            x = x - X;
+            y = y - Y;
+            z = z - Z;
+            
+            //If position is greater than 255, return rest of the division by 256
+            X = X & 255;
+            Y = Y & 255;
+            Z = Z & 255;
+
+            //Get permutation value by given position on Corners of the Cube
+            int gi000 = _Permutations[X + _Permutations[Y + _Permutations[Z]]];
+            int gi001 = _Permutations[X + _Permutations[Y + _Permutations[Z + 1]]];
+            int gi010 = _Permutations[X + _Permutations[Y + 1 + _Permutations[Z]]];
+            int gi011 = _Permutations[X + _Permutations[Y + 1 + _Permutations[Z + 1]]];
+            int gi100 = _Permutations[X + 1 + _Permutations[Y + _Permutations[Z]]];
+            int gi101 = _Permutations[X + 1 + _Permutations[Y + _Permutations[Z + 1]]];
+            int gi110 = _Permutations[X + 1 + _Permutations[Y + 1 + _Permutations[Z]]];
+            int gi111 = _Permutations[X + 1 + _Permutations[Y + 1 + _Permutations[Z + 1]]];
+
+            //Corner position
+            Vector3 v000 = new Vector3(x, y, z);
+            Vector3 v100 = new Vector3(x - 1, y, z);
+            Vector3 v010 = new Vector3(x, y - 1, z);
+            Vector3 v110 = new Vector3(x - 1, y - 1, z);
+            Vector3 v001 = new Vector3(x, y, z - 1);
+            Vector3 v101 = new Vector3(x - 1, y, z - 1);
+            Vector3 v011 = new Vector3(x, y - 1, z - 1);
+            Vector3 v111 = new Vector3(x - 1, y - 1, z - 1);
+
+            //Dot product of Corner position and Gradient vector
+            double n000 = v000.dot(Grad(gi000));
+            double n100 = v100.dot(Grad(gi100));
+            double n010 = v010.dot(Grad(gi010));
+            double n110 = v110.dot(Grad(gi110));
+            double n001 = v001.dot(Grad(gi001));
+            double n101 = v101.dot(Grad(gi101));
+            double n011 = v011.dot(Grad(gi011));
+            double n111 = v111.dot(Grad(gi111));
+
+            //Flatte value of x,y,z position
+            double u = Fade(x);
+            double v = Fade(y);
+            double w = Fade(z);
+
+            //Interpolate all dot products with flatted values
+            return 
+            Lerp(
+                Lerp(
+                    Lerp(
+                        n000,
+                        n100,
+                        u),
+                    Lerp(
+                        n010,
+                        n110,
+                        u),
+                    v),
+                Lerp(
+                    Lerp(
+                        n001,
+                        n101,
+                        u),
+                    Lerp(
+                        n011,
+                        n111,
+                        u),
+                    v),
+                w);
+
+        }
+        /// <summary>
+        /// Return vector of given value (permutation value)
+        /// </summary>
+        /// <param name="v"> Number of vector </param>
+        /// <returns> Vector </returns>
+        private Vector3 Grad(int v)
+        {
+            switch(v % 12)
             {
-                case 0: return new Vector2(1, 1);
-                case 1: return new Vector2(-1, 1);
-                case 2: return new Vector2(-1, -1);
-                default: return new Vector2(1, -1);
+                case 0: return new Vector3(1, 1, 0);
+                case 1: return new Vector3(-1, 1, 0);
+                case 2: return new Vector3(1, -1, 0);
+                case 3: return new Vector3(-1, -1, 0);
+                case 4: return new Vector3(1, 0, 1);
+                case 5: return new Vector3(-1, 0, 1);
+                case 6: return new Vector3(1, 0, -1);
+                case 7: return new Vector3(-1, 0, -1);
+                case 8: return new Vector3(0, 1, 1);
+                case 9: return new Vector3(0, -1, 1);
+                case 10: return new Vector3(0, 1, -1);
+                default: return new Vector3(0, -1, -1);
             }
         }
         /// <summary>
-        /// Equalize the values
+        /// Flatten given value
         /// </summary>
-        /// <param name="v"> value to equalize </param>
-        /// <returns> Faded Value of v</returns>
+        /// <param name="v"> Value to flatte </param>
+        /// <returns> Flatted value </returns>
         private double Fade(double v)
         {
             return ((6 * v - 15) * v + 10) * v * v * v;
         }
         /// <summary>
-        /// Sumarize 2 values with scale t
+        /// Interpolate dot products
         /// </summary>
-        /// <param name="t"> scale </param>
-        /// <param name="a1"> value 1 to lerp </param>
-        /// <param name="a2"> value 2 to lerp </param>
-        /// <returns> Lerped value </returns>
-        private double Lerp(double t, double a1, double a2)
+        /// <param name="a1"> Dot product </param>
+        /// <param name="a2"> Dot product </param>
+        /// <param name="t"> flatted value (Fade function) </param>
+        /// <returns> Interpolated value </returns>
+        private double Lerp(double a1, double a2,double t)
         {
-            return a1 + t*(a2 - a1);
+            return a1*(1-t)+ a2*t;
         }
     }
 }
